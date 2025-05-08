@@ -1,7 +1,5 @@
-﻿using Azure;
-using Azure.Communication.Email;
+﻿using Azure.Communication.Email;
 using Microsoft.Extensions.Options;
-using System.Net.Mail;
 using WebApi.Models;
 
 namespace WebApi.Services;
@@ -29,7 +27,7 @@ public class EmailService : IEmailService
         foreach (var recipient in emailSendRequest.Recipients)
             recipients.Add(new EmailAddress(recipient));
 
-        var emailMessage = new EmailMessage(
+        var message = new EmailMessage(
         senderAddress: _settings.SenderAddress,
         content: new EmailContent(emailSendRequest.Subject)
         {
