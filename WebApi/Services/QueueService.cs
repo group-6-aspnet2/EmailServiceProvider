@@ -1,29 +1,35 @@
 ﻿using Azure.Messaging.ServiceBus;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using WebApi.Models;
 
 namespace WebApi.Services;
 
-public class QueueService : IAsyncDisposable
+public interface IQueueService
 {
-    private readonly IConfiguration _configuration;
-    private readonly ServiceBusClient _client;
-    private readonly EmailService _emailService;
+    Task StartAsync();
+    Task StopAsync();
+}
+
+public class QueueService : IQueueService
+{
+    
+    private readonly ServiceBusClient _client;    
+    private readonly AzureServiceBusSettings _settings;
     private readonly ServiceBusProcessor _processor;
+    private readonly IEmailService _emailService;
 
 
-    public QueueService(IConfiguration configuration, ServiceBusClient client, EmailService emailService)
+    public QueueService(IOptions<AzureServiceBusSettings> options, IEmailService emailService)
     {
-        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        _client = client ?? throw new ArgumentNullException(nameof(client));
-        _emailService = emailService;
 
-        var queueName = _configuration["ASB:QueueName"] ?? throw new InvalidOperationException("QueueName is not configured.");
-        _processor = _client.CreateProcessor(queueName, new ServiceBusProcessorOptions());
+        _settings = options.Value;
+        _client = new ServiceBusClient(_settings.ConnectionString);
+        _processor = _client.CreateProcessor(_settings.QueueName, new ServiceBusProcessorOptions());
+        _emailService = emailService;
 
         RegisterMessageHandler();
         RegisterErrorHandler();
-
     }
 
     private void RegisterMessageHandler()
@@ -35,6 +41,7 @@ public class QueueService : IAsyncDisposable
                 var body = args.Message.Body.ToString();
 
                 var emailSendRequest = JsonConvert.DeserializeObject<EmailSendRequest>(body) ?? throw new Exception("Unable to deserialize request");
+                
 
                 var result = await _emailService.SendEmailAsync(emailSendRequest);
                 if (result)
@@ -58,28 +65,10 @@ public class QueueService : IAsyncDisposable
         };
     }
 
-    public async Task StartAsync()
-    {
-        await _processor.StartProcessingAsync();
-        Console.WriteLine("Queue processing started.");
-    }
+    public async Task StartAsync() => await _processor.StartProcessingAsync();
 
-    public async Task StopAsync()
-    {
-        await _processor.StopProcessingAsync();
-        Console.WriteLine("Queue processing stopped.");
-    }
 
-    public async ValueTask DisposeAsync()
-    {
-        if (_processor is not null)
-        {
-            await _processor.DisposeAsync();
-        }
+    public async Task StopAsync() => await _processor.StopProcessingAsync();
+   
 
-        if (_client is not null)
-        {
-            await _client.DisposeAsync();
-        }
-    }
 }
