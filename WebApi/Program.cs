@@ -1,5 +1,3 @@
-using Azure.Communication.Email;
-using Azure.Messaging.ServiceBus;
 using WebApi.Models;
 using WebApi.Services;
 
