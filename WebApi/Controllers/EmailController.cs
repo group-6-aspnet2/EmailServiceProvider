@@ -6,9 +6,9 @@ namespace WebApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class EmailController(EmailService emailService) : ControllerBase
+public class EmailController(IEmailService emailService) : ControllerBase
 {
-    private readonly EmailService _emailService = emailService;
+    private readonly IEmailService _emailService = emailService;
 
     [HttpPost("send")]
     public async Task<IActionResult> Send(EmailSendRequest request)
