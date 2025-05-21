@@ -21,6 +21,7 @@ public class EmailService : IEmailService
         _settings = options.Value;
         _client = new EmailClient(_settings.ConnectionString);
     }
+    
 
     public async Task<bool> SendEmailAsync(EmailSendRequest emailSendRequest)
     {
