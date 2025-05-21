@@ -1,12 +1,14 @@
 ﻿using Azure.Communication.Email;
+using Microsoft.AspNetCore.Mvc.Diagnostics;
 using Microsoft.Extensions.Options;
 using WebApi.Models;
+
 
 namespace WebApi.Services;
 
 public interface IEmailService
 {
-    Task<bool> SendEmailAsync(EmailSendRequest emailSendRequst);
+    Task<bool> SendEmailAsync(EmailSendRequest emailSendRequst);    
 }
 
 public class EmailService : IEmailService
@@ -39,4 +41,5 @@ public class EmailService : IEmailService
        var result = await _client.SendAsync(Azure.WaitUntil.Completed, message);
        return result.HasCompleted;
     }
+    
 }

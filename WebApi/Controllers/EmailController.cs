@@ -22,4 +22,8 @@ public class EmailController(IEmailService emailService) : ControllerBase
         var result = await _emailService.SendEmailAsync(request);
         return result ? Ok() : StatusCode(500, new { error = "Unable to send email." });
     }
+
+   
+
 }
+

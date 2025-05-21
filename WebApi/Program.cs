@@ -12,6 +12,8 @@ builder.Services.Configure<AzureServiceBusSettings>(builder.Configuration.GetSec
 builder.Services.AddSingleton<IEmailService, EmailService>();
 builder.Services.AddSingleton<IQueueService, QueueService>();
 
+
+
 var app = builder.Build();
 
 app.MapOpenApi();
